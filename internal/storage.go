@@ -1,14 +1,23 @@
 package internal
 
 import (
+	"cvault/utils"
 	"fmt"
 	"log"
+	"path"
 
 	"go.etcd.io/bbolt"
 )
 
 func InitDb() *bbolt.DB {
-	db, err := bbolt.Open("passwords.db", 0600, nil)
+	dir, err := utils.GetWorkingDir()
+	if err != nil {
+		return nil
+	}
+
+	passwordDbPath := path.Join(dir, "vault.db")
+
+	db, err := bbolt.Open(passwordDbPath, 0600, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,7 +40,7 @@ func GetPassword(db *bbolt.DB, key string) (string, error) {
 	err := db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("passwords"))
 		if b == nil {
-			return fmt.Errorf("Password not fount")
+			return fmt.Errorf("Password not found")
 		}
 		pass = b.Get([]byte(key))
 

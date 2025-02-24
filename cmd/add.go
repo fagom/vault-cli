@@ -16,8 +16,10 @@ func AddLocalPassword(db *bbolt.DB) *cobra.Command {
 	}
 
 	AddLocalPasswordCmd = &cobra.Command{
-		Use:   "add",
-		Short: "Create a new local password",
+		Use:     "add <key>",
+		Short:   "Create a new local password",
+		Long:    "Creates a local password with a key and value. The first parameter needs to be key and the second parameter needs to be the password. No white spaces will be recognised, either for the password or key",
+		Example: `vault add dev-password asdjshdsjasdjs-asdsdsad`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
 				fmt.Println("Usage: vault add <key> <value>")

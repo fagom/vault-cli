@@ -16,8 +16,9 @@ func GetPasswordByKey(db *bbolt.DB) *cobra.Command {
 	}
 
 	getPasswordCmd = &cobra.Command{
-		Use:   "get",
-		Short: "Get password by key",
+		Use:     "get <key>",
+		Short:   "Get local password by key",
+		Example: "vault get dev-password",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				fmt.Println("Usage: vault get <key>")
