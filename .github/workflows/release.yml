@@ -17,6 +17,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout Main Branch Separately
+        run: |
+          git fetch origin main
+          git checkout main
+
       - name: Read & Increment Version
         id: version
         run: |
