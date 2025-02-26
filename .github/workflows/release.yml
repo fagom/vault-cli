@@ -40,13 +40,15 @@ jobs:
           echo $NEW_VERSION > $VERSION_FILE
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Commit Updated VERSION File
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add VERSION
-          git commit -m "Bump version to $NEW_VERSION"
-          git push
+      - name: Commit changes and create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "Bump version to ${{ env.NEW_VERSION }}"
+          branch: version-bump-${{ env.NEW_VERSION }}
+          title: "Release version ${{ env.NEW_VERSION }}"
+          body: "This PR updates the VERSION file to v${{ env.NEW_VERSION }} and includes the latest build artifacts."
+          labels: release
+          base: main
 
       - name: Set up Go
         uses: actions/setup-go@v5
