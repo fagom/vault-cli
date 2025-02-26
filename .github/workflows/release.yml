@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  build-and-upload-artifacts:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -57,6 +57,19 @@ jobs:
         run: |
           make release
 
+      - name: Create tarballs
+        run: |
+          tar -czvf vault-darwin-amd64.tar.gz vault-darwin-amd64
+          tar -czvf vault-linux-amd64.tar.gz vault-linux-amd64
+          tar -czvf vault-darwin-arm64.tar.gz vault-darwin-arm64
+          tar -czvf vault-linux-arm64.tar.gz vault-linux-arm64
+          tar -czvf vault-windows-amd64.tar.gz vault-windows-amd64.exe
+
+      - name: Compute SHA256 checksums
+        run: |
+          sha256sum vault-*.tar.gz > checksums.txt
+          cat checksums.txt
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -67,6 +80,53 @@ jobs:
             vault-linux
             vault-mac
             vault.exe
+            vault-darwin-amd64.tar.gz
+            vault-linux-amd64.tar.gz
+            vault-darwin-arm64.tar.gz
+            vault-linux-arm64.tar.gz
+            vault-windows-amd64.tar.gz
           body: "New release of vault"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-homebrew:
+    needs: build-and-upload-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Homebrew Tap Repository
+        uses: actions/checkout@v2
+        with:
+          repository: fagom/homebrew-vault
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Download the checksums from release
+        run: |
+          curl -L -o checksums.txt https://github.com/fagom/vault-cli/releases/latest/download/checksums.txt
+          cat checksums.txt
+
+      - name: Extract SHA256 checksums
+        run: |
+          export SHA256_DARWIN_AMD64=$(grep vault-darwin-amd64.tar.gz checksums.txt | awk '{ print $1 }')
+          export SHA256_DARWIN_ARM64=$(grep vault-darwin-arm64.tar.gz checksums.txt | awk '{ print $1 }')
+          export SHA256_LINUX_AMD64=$(grep vault-linux-amd64.tar.gz checksums.txt | awk '{ print $1 }')
+          export SHA256_LINUX_ARM64=$(grep vault-linux-arm64.tar.gz checksums.txt | awk '{ print $1 }')
+          export NEW_VERSION=${GITHUB_REF#refs/tags/}
+          echo "SHA256_DARWIN_AMD64=$SHA256_DARWIN_AMD64" >> $GITHUB_ENV
+          echo "SHA256_DARWIN_ARM64=$SHA256_DARWIN_ARM64" >> $GITHUB_ENV
+          echo "SHA256_LINUX_AMD64=$SHA256_LINUX_AMD64" >> $GITHUB_ENV
+          echo "SHA256_LINUX_ARM64=$SHA256_LINUX_ARM64" >> $GITHUB_ENV
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Update Homebrew Formula
+        run: |
+          sed -i "s|url .*|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-darwin-amd64.tar.gz\"|g" Formula/vault.rb
+          sed -i "s|sha256 .*|sha256 \"$SHA256_DARWIN\"|g" Formula/vault.rb
+          sed -i "s|version .*|version \"${NEW_VERSION}\"|g" Formula/vault.rb
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/vault.rb
+          git commit -m "Update vault formula to version ${NEW_VERSION}"
+          git push origin main
