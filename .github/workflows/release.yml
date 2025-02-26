@@ -78,7 +78,7 @@ jobs:
           generate_release_notes: true
           files: |
             vault-linux
-            vault-mac
+            vault-darwin
             vault.exe
             vault-darwin-amd64.tar.gz
             vault-linux-amd64.tar.gz
