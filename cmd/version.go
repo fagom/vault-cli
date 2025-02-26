@@ -13,7 +13,7 @@ func GetCliVersion() *cobra.Command {
 		Use:   "version",
 		Short: "Print the version of the CLI",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("vault version:", Version)
+			fmt.Println("vault CLI version:", Version)
 		},
 	}
 }
