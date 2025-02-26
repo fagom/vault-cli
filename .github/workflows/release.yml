@@ -127,6 +127,8 @@ jobs:
         run: |
           FORMULA_FILE="Formula/vault.rb"
 
+          sed -i "s/^  version \".*\"/  version \"${NEW_VERSION}\"/" $FORMULA_FILE
+
           sed -i "s|url \".*vault-darwin-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/v${NEW_VERSION}/vault-darwin-amd64.tar.gz\"|g" $FORMULA_FILE
           sed -i "s|url \".*vault-darwin-arm64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/v${NEW_VERSION}/vault-darwin-arm64.tar.gz\"|g" $FORMULA_FILE
           sed -i "s|url \".*vault-linux-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/v${NEW_VERSION}/vault-linux-amd64.tar.gz\"|g" $FORMULA_FILE
