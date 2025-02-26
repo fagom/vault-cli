@@ -104,29 +104,14 @@ jobs:
         run: |
           curl -L -o checksums.txt https://github.com/fagom/vault-cli/releases/latest/download/checksums.txt
           cat checksums.txt
-
-      - name: Read Version
-        id: version
-        run: |
-          VERSION_FILE="VERSION"
-          OLD_VERSION=$(cat $VERSION_FILE)
-
-          # Extract major, minor, and patch versions
-          MAJOR=$(echo $OLD_VERSION | cut -d. -f1)
-          MINOR=$(echo $OLD_VERSION | cut -d. -f2)
-          PATCH=$(echo $OLD_VERSION | cut -d. -f3)
-
-          # Increment the patch version
-          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
+          
       - name: Extract SHA256 checksums
         run: |
           export SHA256_DARWIN_AMD64=$(grep vault-darwin-amd64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_DARWIN_ARM64=$(grep vault-darwin-arm64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_LINUX_AMD64=$(grep vault-linux-amd64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_LINUX_ARM64=$(grep vault-linux-arm64.tar.gz checksums.txt | awk '{ print $1 }')
+          export NEW_VERSION=${GITHUB_REF#refs/tags/}
           echo "SHA256_DARWIN_AMD64=$SHA256_DARWIN_AMD64" >> $GITHUB_ENV
           echo "SHA256_DARWIN_ARM64=$SHA256_DARWIN_ARM64" >> $GITHUB_ENV
           echo "SHA256_LINUX_AMD64=$SHA256_LINUX_AMD64" >> $GITHUB_ENV
