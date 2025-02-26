@@ -95,40 +95,47 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Homebrew Tap Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: fagom/homebrew-vault
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
+      - name: Fetch VERSION from vault-cli
+        run: |
+          VERSION=$(curl -s https://raw.githubusercontent.com/fagom/vault-cli/main/VERSION)
+          echo "NEW_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Latest version: $VERSION"
+
       - name: Download the checksums from release
         run: |
-          curl -L -o checksums.txt https://github.com/fagom/vault-cli/releases/latest/download/checksums.txt
+          curl -L -o checksums.txt https://github.com/fagom/vault-cli/releases/download/v${{ env.NEW_VERSION }}/checksums.txt
           cat checksums.txt
-          
+
       - name: Extract SHA256 checksums
         run: |
           export SHA256_DARWIN_AMD64=$(grep vault-darwin-amd64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_DARWIN_ARM64=$(grep vault-darwin-arm64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_LINUX_AMD64=$(grep vault-linux-amd64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_LINUX_ARM64=$(grep vault-linux-arm64.tar.gz checksums.txt | awk '{ print $1 }')
-          export NEW_VERSION=${GITHUB_REF#refs/tags/}
+
           echo "SHA256_DARWIN_AMD64=$SHA256_DARWIN_AMD64" >> $GITHUB_ENV
           echo "SHA256_DARWIN_ARM64=$SHA256_DARWIN_ARM64" >> $GITHUB_ENV
           echo "SHA256_LINUX_AMD64=$SHA256_LINUX_AMD64" >> $GITHUB_ENV
           echo "SHA256_LINUX_ARM64=$SHA256_LINUX_ARM64" >> $GITHUB_ENV
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Update Homebrew Formula
         run: |
-          sed -i "s|url .*darwin-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-darwin-amd64.tar.gz\"|g" Formula/vault.rb
-          sed -i "s|url .*darwin-arm64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-darwin-arm64.tar.gz\"|g" Formula/vault.rb
-          sed -i "s|url .*linux-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-linux-amd64.tar.gz\"|g" Formula/vault.rb
-          sed -i "s|url .*linux-arm64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-linux-arm64.tar.gz\"|g" Formula/vault.rb
+          FORMULA_FILE="Formula/vault.rb"
 
-          sed -i "s|sha256 \"\"|sha256 \"${SHA256_DARWIN_AMD64}\"|1" Formula/vault.rb
-          sed -i "s|sha256 \"\"|sha256 \"${SHA256_DARWIN_ARM64}\"|1" Formula/vault.rb
-          sed -i "s|sha256 \"\"|sha256 \"${SHA256_LINUX_AMD64}\"|1" Formula/vault.rb
-          sed -i "s|sha256 \"\"|sha256 \"${SHA256_LINUX_ARM64}\"|1" Formula/vault.rb
+          sed -i "s|url \".*vault-darwin-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/v${NEW_VERSION}/vault-darwin-amd64.tar.gz\"|g" $FORMULA_FILE
+          sed -i "s|url \".*vault-darwin-arm64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/v${NEW_VERSION}/vault-darwin-arm64.tar.gz\"|g" $FORMULA_FILE
+          sed -i "s|url \".*vault-linux-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/v${NEW_VERSION}/vault-linux-amd64.tar.gz\"|g" $FORMULA_FILE
+          sed -i "s|url \".*vault-linux-arm64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/v${NEW_VERSION}/vault-linux-arm64.tar.gz\"|g" $FORMULA_FILE
+
+          sed -i "s|sha256 \".*\" # darwin-amd64|sha256 \"${SHA256_DARWIN_AMD64}\" # darwin-amd64|g" $FORMULA_FILE
+          sed -i "s|sha256 \".*\" # darwin-arm64|sha256 \"${SHA256_DARWIN_ARM64}\" # darwin-arm64|g" $FORMULA_FILE
+          sed -i "s|sha256 \".*\" # linux-amd64|sha256 \"${SHA256_LINUX_AMD64}\" # linux-amd64|g" $FORMULA_FILE
+          sed -i "s|sha256 \".*\" # linux-arm64|sha256 \"${SHA256_LINUX_ARM64}\" # linux-arm64|g" $FORMULA_FILE
 
       - name: Commit and Push Changes
         run: |
