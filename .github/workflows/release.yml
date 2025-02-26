@@ -43,6 +43,7 @@ jobs:
       - name: Commit changes and create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           commit-message: "Bump version to ${{ env.NEW_VERSION }}"
           branch: version-bump-${{ env.NEW_VERSION }}
           title: "Release version ${{ env.NEW_VERSION }}"
