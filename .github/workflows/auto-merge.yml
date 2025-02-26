@@ -12,6 +12,3 @@ jobs:
       pull-requests: write
     steps:
       - uses: pascalgn/automerge-action@v0.16.4
-        with:
-          merge_method: merge
-          commit_message: merge
