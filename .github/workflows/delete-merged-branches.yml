@@ -3,7 +3,10 @@ name: Delete Merged Branches
 on:
   pull_request:
     types:
-      - closed # Triggers when a PR is closed (merged or declined)
+      - closed # Runs when a PR is closed (merged or declined)
+
+permissions:
+  contents: write # Required for deleting branches
 
 jobs:
   delete-branch:
@@ -11,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete Branch After Merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BRANCH_NAME=${{ github.event.pull_request.head.ref }}
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
           if [[ "$BRANCH_NAME" != "release" ]]; then
             echo "Deleting branch $BRANCH_NAME"
-            git push origin --delete "$BRANCH_NAME"
+            gh api --method DELETE "/repos/${{ github.repository }}/git/refs/heads/$BRANCH_NAME"
           else
             echo "Skipping deletion for protected 'release' branch."
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
