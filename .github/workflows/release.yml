@@ -120,9 +120,15 @@ jobs:
 
       - name: Update Homebrew Formula
         run: |
-          sed -i "s|url .*|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-darwin-amd64.tar.gz\"|g" Formula/vault.rb
-          sed -i "s|sha256 .*|sha256 \"$SHA256_DARWIN\"|g" Formula/vault.rb
-          sed -i "s|version .*|version \"${NEW_VERSION}\"|g" Formula/vault.rb
+          sed -i "s|url .*darwin-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-darwin-amd64.tar.gz\"|g" Formula/vault.rb
+          sed -i "s|url .*darwin-arm64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-darwin-arm64.tar.gz\"|g" Formula/vault.rb
+          sed -i "s|url .*linux-amd64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-linux-amd64.tar.gz\"|g" Formula/vault.rb
+          sed -i "s|url .*linux-arm64.tar.gz\"|url \"https://github.com/fagom/vault-cli/releases/download/${NEW_VERSION}/vault-linux-arm64.tar.gz\"|g" Formula/vault.rb
+
+          sed -i "s|sha256 \"\"|sha256 \"${SHA256_DARWIN_AMD64}\"|1" Formula/vault.rb
+          sed -i "s|sha256 \"\"|sha256 \"${SHA256_DARWIN_ARM64}\"|1" Formula/vault.rb
+          sed -i "s|sha256 \"\"|sha256 \"${SHA256_LINUX_AMD64}\"|1" Formula/vault.rb
+          sed -i "s|sha256 \"\"|sha256 \"${SHA256_LINUX_ARM64}\"|1" Formula/vault.rb
 
       - name: Commit and Push Changes
         run: |
