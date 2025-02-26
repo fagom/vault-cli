@@ -1,4 +1,5 @@
-VERSION := $(shell cat VERSION)
+# Extract the latest Git tag as the version
+VERSION := $(shell git describe --tags --abbrev=0)
 LDFLAGS := -X 'vault/cmd.Version=$(VERSION)'
 
 build:
