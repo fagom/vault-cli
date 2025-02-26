@@ -111,6 +111,7 @@ jobs:
           export SHA256_DARWIN_ARM64=$(grep vault-darwin-arm64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_LINUX_AMD64=$(grep vault-linux-amd64.tar.gz checksums.txt | awk '{ print $1 }')
           export SHA256_LINUX_ARM64=$(grep vault-linux-arm64.tar.gz checksums.txt | awk '{ print $1 }')
+          export NEW_VERSION=${GITHUB_REF#refs/tags/}
           echo "SHA256_DARWIN_AMD64=$SHA256_DARWIN_AMD64" >> $GITHUB_ENV
           echo "SHA256_DARWIN_ARM64=$SHA256_DARWIN_ARM64" >> $GITHUB_ENV
           echo "SHA256_LINUX_AMD64=$SHA256_LINUX_AMD64" >> $GITHUB_ENV
