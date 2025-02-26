@@ -97,7 +97,7 @@ jobs:
             vault-linux-arm64.tar.gz
             vault-windows-amd64.tar.gz
             checksums.txt
-          body: "New release of vault CLI"
+          body: "New release for vault CLI"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
