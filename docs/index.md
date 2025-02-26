@@ -44,7 +44,7 @@ vault list
 For a complete list of commands and options, run:
 
 ```sh
-vault help
+vault -h
 ```
 
 ## Contributing
