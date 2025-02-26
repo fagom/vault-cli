@@ -85,6 +85,7 @@ jobs:
             vault-darwin-arm64.tar.gz
             vault-linux-arm64.tar.gz
             vault-windows-amd64.tar.gz
+            checksums.txt
           body: "New release of vault"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
