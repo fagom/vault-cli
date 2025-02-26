@@ -59,11 +59,20 @@ jobs:
 
       - name: Create tarballs
         run: |
-          tar -czvf vault-darwin-amd64.tar.gz vault-darwin-amd64
-          tar -czvf vault-linux-amd64.tar.gz vault-linux-amd64
-          tar -czvf vault-darwin-arm64.tar.gz vault-darwin-arm64
-          tar -czvf vault-linux-arm64.tar.gz vault-linux-arm64
-          tar -czvf vault-windows-amd64.tar.gz vault-windows-amd64.exe
+          mv vault-darwin-amd64 vault
+          tar -czvf vault-darwin-amd64.tar.gz vault
+
+          mv vault-darwin-arm64 vault
+          tar -czvf vault-darwin-arm64.tar.gz vault
+
+          mv vault-linux-amd64 vault
+          tar -czvf vault-linux-amd64.tar.gz vault
+
+          mv vault-linux-arm64 vault
+          tar -czvf vault-linux-arm64.tar.gz vault
+
+          mv vault-windows-amd64.exe vault.exe
+          tar -czvf vault-windows-amd64.tar.gz vault.exe
 
       - name: Compute SHA256 checksums
         run: |
